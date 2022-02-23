@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>{% block title %}Stack APP{% endblock %}</title>
+
+    <!-- <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/dataTables.bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/responsive.bootstrap.min.css' %}" rel="stylesheet">
+    
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'js/responsive.bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/daterangepicker.min.js' %}"></script>
+    <link href="{% static 'css/daterangepicker.css' %}" rel="stylesheet"> -->
+    <link rel="stylesheet" href="{% static 'modules/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'modules/fontawesome/css/all.min.css' %}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+
+    <link rel="stylesheet" href="{% static 'modules/datatables/datatables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css' %}">
+
+    <script src="{% static 'modules/jquery.min.js' %}"></script>
+    <script src="{% static 'modules/popper.js' %}"></script>
+    <script src="{% static 'modules/tooltip.js' %}"></script>
+    <script src="{% static 'modules/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'modules/moment.min.js' %}"></script>
+    <script src="{% static 'js/stisla.js' %}"></script>
+
+
+    <script src="{% static 'modules/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'modules/datatables/Select-1.2.4/js/dataTables.select.min.js' %}"></script>
+
+    <script src='https://code.jquery.com/jquery-3.5.1.js'></script>
+    <script src='https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js'></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+</head>
+<div class="form-group">
+
+    <form method="POST" action="" id="stack_form">{% csrf_token %}
+
+        <h2 style="text-align: center;" class="section-title">Stackoverflow Questions</h2>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered dt-responsive" cellspacing="0" width="100%">
+                                <tr>
+                                    <td>
+                                        Start Date : <input type="text" name="daterange1" id="start_date" />
+                                    </td>
+                                    <td>
+                                        End Date : <input type="text" name="daterange2" id="end_date" />
+                                    </td>
+                                    <td>
+                                        Site name :
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-control" aria-label="Default select example" name="site_names">
+                                                {% for site_name in site_names %}
+                                                <option value="{{ site_name.site_code }}"> {{ site_name.site_name}} </option>
+                                                {% endfor %}
+                                            </select>
+                                    </td>
+                                    <td>
+                                        Title : <input class="form-input" type="text" name="title" id="title" />
+                                    </td>
+                                    <td>
+                                        <button type="button" id="search_btn" class="btn btn-info">Search</button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table id="example" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Tags</th>
+                                        <th>Link</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-right">
+
+                    </div>
+                </div>
+            </div>
+    </form>
+    </div>
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = () => alert('Limit exceed. Please try after some time.')
+            Table = $('#example').DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "paging": true,
+                "processing": true,
+                "sAjaxSource": "fetch",
+                "sServerMethod": "GET",
+                "deferLoading": 0,
+                "sPaginationType": "simple",
+                "sDom": 'lrtip',
+                "fnServerParams": function(aoData) {
+                    aoData.push({
+                        "name": "start_date",
+                        "value": $("#start_date").val()
+                    });
+                    aoData.push({
+                        "name": "end_date",
+                        "value": $("#end_date").val()
+                    });
+                    aoData.push({
+                        "name": "tags",
+                        "value": $("#tags").val()
+                    });
+                    aoData.push({
+                        "name": "site_name",
+                        "value": document.querySelectorAll('option:checked')[0].value
+                    });
+                    aoData.push({
+                            "name": "title",
+                            "value": $("#title").val()
+                        })
+                        // aoData.push({ "name": "page", "value": page.info()["page"] + 1 })
+
+                },
+                "fnRowCallback": function(nRow, aData, iDisplayIndex) {
+                    $('td:eq(2)', nRow).html('<a target="blank" href=' + aData[1] + 'class="btn btn-primary">Details</a>');
+                }
+
+            });
+
+            $("#search_btn").on("click", function(event) {
+                Table.search(Table.page.info()["page"] + 1).draw();
+            });
+
+            $("#example_length").css('visibility', 'hidden')
+            $(function() {
+                var myTable = $('#myTable').dataTable();
+
+                $('.example_filter input')
+                    .unbind('keypress keyup')
+                    .bind('keypress keyup', function(e) {
+                        if ($(this).val().length < 3 && e.keyCode != 13) return;
+                        myTable.fnFilter($(this).val());
+                    });
+            });
+
+
+            $(function() {
+                $('input[name="daterange1"]').daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 1901,
+                    maxYear: parseInt(moment().format('YYYY'), 10)
+                });
+                $('input[name="daterange2"]').daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 1901,
+                    maxYear: parseInt(moment().format('YYYY'), 10)
+                });
+            });
+        });
+    </script>
+
+</html>
